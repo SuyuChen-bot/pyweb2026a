@@ -11,6 +11,7 @@ def index():
     link += "<a href=/about>關於素宥</a><hr>"
     link += "<a href=/welcome?u=素宥&dep=靜宜資管>GET傳值</a><hr>"
     link += "<a href=/account>POST傳值(帳號密碼)</a><hr>"
+    link += "<a href=/math>數學運算</a><hr>"
     return link
 
 @app.route("/mis")
@@ -45,6 +46,35 @@ def account():
         return result
     else:
         return render_template("account.html")
+
+@app.route('/math', methods=['GET', 'POST'])
+def math():
+    Result = None
+    error_msg = None
+    x, y, opt = None, None, None
+
+    if request.method == 'POST':
+        try:
+            # 從表單取得資料
+            x = int(request.form.get('x'))
+            y = int(request.form.get('y'))
+            opt = request.form.get('opt')
+
+            # 你的核心邏輯：判斷除數與運算
+            if opt == "/" and y == 0:
+                error_msg = "錯誤：除數不能為 0"
+            else:
+                match opt:
+                    case "+": Result = x + y
+                    case "-": Result = x - y
+                    case "*": Result = x * y
+                    case "/": Result = x / y
+                    case "%": Result = x % y
+                    case _: error_msg = f"錯誤：不支援的符號 '{opt}'"
+        except (ValueError, TypeError):
+            error_msg = "請輸入有效的數字"
+
+    return render_template('math.html', Result=Result, error_msg=error_msg, x=x, y=y, opt=opt)
 
 
 if __name__ == "__main__":
